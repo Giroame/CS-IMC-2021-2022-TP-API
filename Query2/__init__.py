@@ -3,6 +3,7 @@ from py2neo import Graph
 from py2neo.bulk import create_nodes, create_relationships
 from py2neo.data import Node
 import os
+import pyodbc as pyodbc
 import azure.functions as func
 
 
@@ -30,23 +31,23 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     errorMessage = ""
     dataString = ""
 
-    # try:
-    logging.info("Test de connexion avec pyodbc...")
-    with pyodbc.connect('DRIVER='+driver+';SERVER=tcp:'+server+';PORT=1433;DATABASE='+database+';UID='+username+';PWD='+ password) as conn:
-        errorMessage += "Trying to create cursor\n"
-        cursor = conn.cursor()
-        errorMessage += "Cursor created successfully\n"
+    try:
+        logging.info("Test de connexion avec pyodbc...")
+        with pyodbc.connect('DRIVER='+driver+';SERVER=tcp:'+server+';PORT=1433;DATABASE='+database+';UID='+username+';PWD='+ password) as conn:
+            errorMessage += "Trying to create cursor\n"
+            cursor = conn.cursor()
+            errorMessage += "Cursor created successfully\n"
 
-        cursor.execute("SELECT g.genre, AVG(t.averageRating) AS avgRating FROM tGenres AS g JOIN tTitles AS t ON g.tconst=t.tconst WHERE t.averageRating IS NOT NULL GROUP BY g.genre")
-        errorMessage += "Request made successfully\n"
+            cursor.execute("SELECT g.genre, AVG(t.averageRating) AS avgRating FROM tGenres AS g JOIN tTitles AS t ON g.tconst=t.tconst WHERE t.averageRating IS NOT NULL GROUP BY g.genre")
+            errorMessage += "Request made successfully\n"
 
-        rows = cursor.fetchall()
-        for row in rows:
-            dataString += f"SQL: category:{row[0]}, AverageRating = {row[1]}\n"
+            rows = cursor.fetchall()
+            for row in rows:
+                dataString += f"SQL: category:{row[0]}, AverageRating = {row[1]}\n"
 
 
-    # except:
-    #     errorMessage += "Erreur de connexion a la base SQL\n"
+    except:
+        errorMessage += "Erreur de connexion a la base SQL\n"
 
         
     
