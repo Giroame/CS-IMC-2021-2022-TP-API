@@ -1,10 +1,13 @@
 import logging
-
+from py2neo import Graph
+from py2neo.bulk import create_nodes, create_relationships
+from py2neo.data import Node
+import os
 import azure.functions as func
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('Python HTTP trigger function processed Query 2.')
+    logging.info('Python HTTP trigger function processed Query 1.')
 
     name = req.params.get('name')
     if not name:
@@ -20,10 +23,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     username = os.environ["TPBDD_USERNAME"]
     password = os.environ["TPBDD_PASSWORD"]
     driver= '{ODBC Driver 17 for SQL Server}'
-
-    # Average film rating, by category
-
-
 
     if len(server)==0 or len(database)==0 or len(username)==0 or len(password)==0 or len(neo4j_server)==0 or len(neo4j_user)==0 or len(neo4j_password)==0:
         return func.HttpResponse("Au moins une des variables d'environnement n'a pas été initialisée.", status_code=500)
@@ -45,14 +44,15 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     except:
         errorMessage = "Erreur de connexion a la base SQL"
 
-
-    if name:
-        return func.HttpResponse(f"Hello, {name}. This HTTP triggered function executed successfully.")
-    else:
-        return func.HttpResponse(
-             "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
-             status_code=200
-        )
         
+    
+    if name:
+        nameMessage = f"Hello, {name}!\n"
+    else:
+        nameMessage = "Le parametre 'name' n'a pas ete fourni lors de l'appel.\n"
+    
     if errorMessage != "":
         return func.HttpResponse(dataString + nameMessage + errorMessage, status_code=500)
+
+    else:
+        return func.HttpResponse(dataString + nameMessage + " Connexions réussies a SQL!")
