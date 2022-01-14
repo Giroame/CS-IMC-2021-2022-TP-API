@@ -34,15 +34,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         logging.info("Test de connexion avec pyodbc...")
         with pyodbc.connect('DRIVER='+driver+';SERVER=tcp:'+server+';PORT=1433;DATABASE='+database+';UID='+username+';PWD='+ password) as conn:
             cursor = conn.cursor()
+            errorMessage += "Cursor created successfully\n"
             cursor.execute("SELECT g.genre, AVG(t.averageRating) AS avgRating FROM tGenres AS g JOIN tTitles AS t ON g.tconst=t.tconst WHERE t.averageRating IS NOT NULL GROUP BY g.genre")
-
+            errorMessage += "Request made successfully\n"
             rows = cursor.fetchall()
             for row in rows:
                 dataString += f"SQL: category:{row[0]}, AverageRating = {row[1]}\n"
 
 
     except:
-        errorMessage = "Erreur de connexion a la base SQL"
+        errorMessage += "Erreur de connexion a la base SQL\n"
 
         
     
