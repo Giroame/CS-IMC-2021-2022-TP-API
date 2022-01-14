@@ -21,9 +21,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     password = os.environ["TPBDD_PASSWORD"]
     driver= '{ODBC Driver 17 for SQL Server}'
 
-    neo4j_server = os.environ["TPBDD_NEO4J_SERVER"]
-    neo4j_user = os.environ["TPBDD_NEO4J_USER"]
-    neo4j_password = os.environ["TPBDD_NEO4J_PASSWORD"]
+    # Average film rating, by category
+
+
 
     if len(server)==0 or len(database)==0 or len(username)==0 or len(password)==0 or len(neo4j_server)==0 or len(neo4j_user)==0 or len(neo4j_password)==0:
         return func.HttpResponse("Au moins une des variables d'environnement n'a pas été initialisée.", status_code=500)
@@ -31,10 +31,19 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     errorMessage = ""
     dataString = ""
 
+    try:
+        logging.info("Test de connexion avec pyodbc...")
+        with pyodbc.connect('DRIVER='+driver+';SERVER=tcp:'+server+';PORT=1433;DATABASE='+database+';UID='+username+';PWD='+ password) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT g.genre, AVG(t.averageRating) AS avgRating FROM tGenres AS g JOIN tTitles AS t ON g.tconst=t.tconst WHERE t.averageRating IS NOT NULL GROUP BY g.genre")
+
+            rows = cursor.fetchall()
+            for row in rows:
+                dataString += f"SQL: category:{row[0]}, AverageRating = {row[1]}\n"
 
 
-
-
+    except:
+        errorMessage = "Erreur de connexion a la base SQL"
 
 
     if name:
