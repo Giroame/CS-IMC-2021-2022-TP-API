@@ -34,12 +34,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
         logging.info("Test de connexion avec pyodbc...")
         with pyodbc.connect('DRIVER='+driver+';SERVER=tcp:'+server+';PORT=1433;DATABASE='+database+';UID='+username+';PWD='+ password) as conn:
-            errorMessage += "Trying to create cursor\n"
             cursor = conn.cursor()
-            errorMessage += "Cursor created successfully\n"
 
-            cursor.execute("SELECT g.genre, AVG(t.averageRating) AS avgRating FROM tGenres AS g JOIN tTitles AS t ON g.tconst=t.tconst WHERE t.averageRating IS NOT NULL GROUP BY g.genre")
-            errorMessage += "Request made successfully\n"
+            ## Note moyenne par genre
+            cursor.execute("SELECT g.genre, AVG(t.averageRating) AS avgRating FROM tGenres AS g JOIN tTitles AS t ON g.tconst=t.tconst WHERE t.averageRating IS NOT NULL GROUP BY g.genre ORDER BY g.genre ASC")
 
             rows = cursor.fetchall()
             for row in rows:
