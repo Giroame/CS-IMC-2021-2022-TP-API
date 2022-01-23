@@ -42,12 +42,15 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         # Cypher
         logging.info("Test de connexion avec py2neo...")
         graph = Graph(neo4j_server, auth=(neo4j_user, neo4j_password))
-        
-        # Rating for each film
+        print("Connexion reussie !")
+
+        dico_film_rating={}
+        dico_genre_film={}
+
         films = graph.run("MATCH (t:Film) RETURN t.idFilm, t.averageRating")
 
         for film in films:
-            dataString += f"CYPHER: idFilm={film['t.idFilm']}, averageRating={film['t.averageRating']}\n"
+            dico_film_rating[film['t.idFilm']]=film['t.averageRating']
 
         try:
             # SQL
@@ -55,10 +58,27 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             with pyodbc.connect('DRIVER='+driver+';SERVER=tcp:'+server+';PORT=1433;DATABASE='+database+';UID='+username+';PWD='+ password) as conn:
                 cursor = conn.cursor()
 
-                cursor.execute("")
+
+                cursor.execute("SELECT DISTINCT genre FROM tGenre")
                 rows = cursor.fetchall()
-                # for row in rows:
-                #     dataString += f"SQL: tconst={row[0]}, primaryTitle={row[1]}, averageRating={row[2]}\n"
+                for row in rows:
+                    dico_genre_film[row[0]] = []
+
+                cursor.execute("SELECT fg.idFilm, g.genre FROM tGenre AS g JOIN tFilmGenre AS fg ON g.idGenre = fg.idGenre")
+                rows = cursor.fetchall()
+                for row in rows:
+                    dico_genre_film[row[1]].append(row[0])
+                    # dataString += f"SQL: tconst={row[0]}, primaryTitle={row[1]}, averageRating={row[2]}\n"
+
+                for genre in dico_genre_film:
+                    sum, count=0, 0
+                    dataString += f"{genre} : "
+                    for film in dico_genre_film[genre]:
+                        if dico_film_rating[film] != None:
+                            sum += dico_film_rating[film]
+                            count += 1
+                    if count != 0:
+                        dataString+= f"averageRating is {round(sum/count,2)}/10\n"
 
 
         except:
