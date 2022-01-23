@@ -1,5 +1,7 @@
 # CS-IMC-2021-2022-TP-API
 
+TP réalisé par Ewen QuIMERC'H et Clarence CHARLES
+
 Query 1 and 2 may not work anymore because of the modification of the databases structure. Query 3, 4 and 5 are adapted to the new DB structure.
 
 # Resource deployment

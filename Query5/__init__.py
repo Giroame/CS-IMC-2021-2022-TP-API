@@ -65,13 +65,21 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             with pyodbc.connect('DRIVER='+driver+';SERVER=tcp:'+server+';PORT=1433;DATABASE='+database+';UID='+username+';PWD='+ password) as conn:
                 cursor = conn.cursor()
 
-                request = f"SELECT g.genre, costum.avgRunTimeMinute  FROM tGenre AS g JOIN ( \
-                                    SELECT AVG(f.runtimeMinutes) AS avgRunTimeMinute, fg.idGenre \
-                                    FROM tFilm AS f JOIN tFilmGenre AS fg \
-                                    ON f.idFilm=fg.idFilm \
-                                    GROUP BY fg.idGenre \
-                                ) AS costum ON g.idGenre = costum.idGenre \
-                                    WHERE g.genre='{genre}'"
+                if genre != "":
+                    request = f"SELECT g.genre, costum.avgRunTimeMinute  FROM tGenre AS g JOIN ( \
+                                        SELECT AVG(f.runtimeMinutes) AS avgRunTimeMinute, fg.idGenre \
+                                        FROM tFilm AS f JOIN tFilmGenre AS fg \
+                                        ON f.idFilm=fg.idFilm \
+                                        GROUP BY fg.idGenre \
+                                    ) AS costum ON g.idGenre = costum.idGenre \
+                                        WHERE g.genre='{genre}'"
+                else:
+                    request = f"SELECT g.genre, costum.avgRunTimeMinute  FROM tGenre AS g JOIN ( \
+                                        SELECT AVG(f.runtimeMinutes) AS avgRunTimeMinute, fg.idGenre \
+                                        FROM tFilm AS f JOIN tFilmGenre AS fg \
+                                        ON f.idFilm=fg.idFilm \
+                                        GROUP BY fg.idGenre \
+                                    ) AS costum ON g.idGenre = costum.idGenre"
                 cursor.execute(request) 
                 rows = cursor.fetchall()
                 for row in rows:
