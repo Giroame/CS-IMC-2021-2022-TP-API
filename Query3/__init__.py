@@ -6,7 +6,7 @@ import os
 import pyodbc as pyodbc
 import azure.functions as func
 
-# Redeployment 2
+# Redeployment 1
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
