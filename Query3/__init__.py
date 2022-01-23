@@ -6,6 +6,8 @@ import os
 import pyodbc as pyodbc
 import azure.functions as func
 
+# Redeployment
+
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed Query 1.')
